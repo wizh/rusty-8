@@ -1,0 +1,6 @@
+[package]
+name = "rusty-8"
+version = "0.1.0"
+authors = ["Mathias Fleig Mortensen <humanmatti@gmail.com>"]
+
+[dependencies]
