@@ -1,3 +1,16 @@
+use std::fs::File;
+use std::env;
+use std::io::prelude::*;
+
+mod emulator;
+use emulator::Emulator;
+
 fn main() {
-    println!("Hello, world!");
+    let rom_name = env::args().nth(1).expect("usage: cargo run <rom>");
+    let mut rom_fd = File::open(&rom_name).expect("rom not found");
+
+    let mut rom_buf = Vec::new();
+    rom_fd.read_to_end(&mut rom_buf);
+
+    let emulator = Emulator::new(rom_buf);
 }
