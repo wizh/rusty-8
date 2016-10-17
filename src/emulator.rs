@@ -1,7 +1,7 @@
 use cpu::CPU;
-use display::Display;
 use apu::APU;
 use keypad::Keypad;
+use display::Display;
 
 pub const PROGRAM_OFFSET: usize = 0x200;
 pub const NUM_STACK_FRAMES: usize = 16;

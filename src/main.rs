@@ -1,3 +1,5 @@
+extern crate rand;
+
 use std::fs::File;
 use std::env;
 use std::io::prelude::*;

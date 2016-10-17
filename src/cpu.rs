@@ -1,4 +1,7 @@
+extern crate rand;
+
 use std::cmp;
+use rand::random;
 use emulator;
 
 pub struct CPU {
@@ -194,37 +197,58 @@ impl CPU {
     // Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there
     // isn't.
     fn op_8xy4(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        let vx_index = (opcode << 4 >> 12) as usize;
+        let (res, overflow) = self.v_regs[vx_index].
+            overflowing_add(self.v_regs[(opcode << 8 >> 12) as usize]);
+
+        self.v_regs[vx_index] = res;
+        self.v_regs[0xF] = overflow as u8;
     }
 
     // VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1
     // when there isn't.
     fn op_8xy5(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        let vx_index = (opcode << 4 >> 12) as usize;
+        let (res, overflow) = self.v_regs[vx_index].
+            overflowing_sub(self.v_regs[(opcode << 8 >> 12) as usize]);
+
+        self.v_regs[vx_index] = res;
+        self.v_regs[0xF] = !overflow as u8;
     }
 
     // Shifts VX right by one. VF is set to the value of the least significant
     // bit of VX before the shift.
     fn op_8xy6(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        let vx_index = (opcode << 4 >> 12) as usize;
+        self.v_regs[0xF] = (opcode << 7 >> 15) as u8;
+        self.v_regs[vx_index] = self.v_regs[vx_index] >> 1;
     }
 
     // Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1
     // when there isn't.
     fn op_8xy7(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        let vx_index = (opcode << 4 >> 12) as usize;
+        let (res, overflow) = self.v_regs[(opcode << 8 >> 12) as usize].
+            overflowing_sub(self.v_regs[vx_index as usize]);
+
+        self.v_regs[vx_index] = res;
+        self.v_regs[0xF] = !overflow as u8;
     }
 
     // Shifts VX left by one. VF is set to the value of the most significant
     // bit of VX before the shift.
     fn op_8xye(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        let vx_index = (opcode << 4 >> 12) as usize;
+        self.v_regs[0xF] = (opcode << 4 >> 15) as u8;
+        self.v_regs[vx_index] = self.v_regs[vx_index] << 1;
     }
 
     // Skips the next instruction if VX doesn't equal VY.
     fn op_9xy0(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
-    }
+        if self.v_regs[(opcode << 4 >> 12) as usize] !=
+           self.v_regs[(opcode << 8 >> 12) as usize] {
+            self.pc_reg += 2;
+        }    }
 
     // Sets I to the address NNN.
     fn op_annn(&mut self, opcode: u16) {
@@ -233,12 +257,15 @@ impl CPU {
 
     // Jumps to the address NNN plus V0.
     fn op_bnnn(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        self.pc_reg = opcode << 4 >> 4 as u16 + self.v_regs[0] as u16;
     }
 
     // Sets VX to the result of a bitwise AND on a random number and NN.
     fn op_cxnn(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        let random_number = random::<u8>();
+
+        self.v_regs[(opcode << 4 >> 12) as usize] =
+            random_number & (opcode << 8 >> 8) as u8;
     }
 
     // Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and
