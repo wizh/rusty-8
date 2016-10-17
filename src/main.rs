@@ -2,7 +2,12 @@ use std::fs::File;
 use std::env;
 use std::io::prelude::*;
 
+mod cpu;
+mod gpu;
+mod apu;
+mod keypad;
 mod emulator;
+
 use emulator::Emulator;
 
 fn main() {
