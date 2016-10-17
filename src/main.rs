@@ -12,5 +12,6 @@ fn main() {
     let mut rom_buf = Vec::new();
     rom_fd.read_to_end(&mut rom_buf);
 
-    let emulator = Emulator::new(rom_buf);
+    let mut emulator = Emulator::new(rom_buf);
+    emulator.run();
 }
