@@ -1,3 +1,4 @@
+use std::cmp;
 use emulator;
 
 pub struct CPU {
@@ -33,8 +34,8 @@ impl CPU {
 
         match opcode & 0xF000 {
             0x0000 => match opcode & 0x00FF {
-                        0x0000 => self.op_00e0(opcode),
-                        0x000E => self.op_00ee(opcode),
+                        0x00E0 => self.op_00e0(opcode),
+                        0x00EE => self.op_00ee(opcode),
                         _      => println!("Unkown opcode: {:x}", opcode),
                     },
             0x1000 => self.op_1nnn(opcode),
@@ -95,9 +96,10 @@ impl CPU {
         }
 
         println!("PC: {:x}", self.pc_reg);
-        println!("IP: {:x}", self.i_reg);
+        println!("SP: {:x}", self.sp_reg);
+        println!("Stack: {:?}", self.stack);
+        println!("I: {:x}", self.i_reg);
         println!("Next opcode: {:#X}", self.fetch_opcode());
-        println!("-----------------------\n");
     }
 
     // Clears the screen.
@@ -107,7 +109,12 @@ impl CPU {
 
     // Returns from a subroutine.
     fn op_00ee(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        self.pc_reg = self.stack[self.sp_reg as usize] as u16;
+        self.stack[self.sp_reg as usize] = 0;
+
+        if self.stack[0] != 0 {
+            self.sp_reg -= 1;
+        }
     }
 
     // Jumps to address NNN.
@@ -117,7 +124,12 @@ impl CPU {
 
     // Calls subroutine at NNN.
     fn op_2nnn(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        if self.stack[0] != 0 {
+            self.sp_reg += 1;
+        }
+
+        self.stack[self.sp_reg as usize] = self.pc_reg + 2;
+        self.pc_reg = (opcode << 4 >> 4);
     }
 
     // Skips the next instruction if VX equals NN.
@@ -137,7 +149,7 @@ impl CPU {
 
     // Sets VX to NN.
     fn op_6xnn(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        self.v_regs[(opcode << 4 >> 12) as usize] = (opcode << 8 >> 8) as u8;
     }
 
     // Adds NN to VX.
@@ -202,7 +214,7 @@ impl CPU {
 
     // Sets I to the address NNN.
     fn op_annn(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        self.i_reg = opcode << 4 >> 4;
     }
 
     // Jumps to the address NNN plus V0.
