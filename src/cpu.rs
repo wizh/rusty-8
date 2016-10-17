@@ -122,7 +122,7 @@ impl CPU {
 
     // Jumps to address NNN.
     fn op_1nnn(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        self.pc_reg = (opcode << 4 >> 4) as u16;
     }
 
     // Calls subroutine at NNN.
@@ -134,17 +134,24 @@ impl CPU {
 
     // Skips the next instruction if VX equals NN.
     fn op_3xnn(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        if self.v_regs[(opcode << 4 >> 12) as usize] == (opcode << 8 >> 8) as u8 {
+            self.pc_reg += 2;
+        }
     }
 
     // Skips the next instruction if VX doesn't equal NN.
     fn op_4xnn(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        if self.v_regs[(opcode << 4 >> 12) as usize] != (opcode << 8 >> 8) as u8 {
+            self.pc_reg += 2;
+        }
     }
 
     // Skips the next instruction if VX equals VY.
     fn op_5xy0(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        if self.v_regs[(opcode << 4 >> 12) as usize] ==
+           self.v_regs[(opcode << 8 >> 12) as usize] {
+            self.pc_reg += 2;
+        }
     }
 
     // Sets VX to NN.
@@ -157,24 +164,31 @@ impl CPU {
         self.v_regs[(opcode << 4 >> 12) as usize] += (opcode << 8 >> 8) as u8;
     }
 
-    // Sets VX to VX OR VY.
+    // Sets VX to VY.
     fn op_8xy0(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        self.v_regs[(opcode << 4 >> 12) as usize] =
+        self.v_regs[(opcode << 8 >> 12) as usize];
     }
 
     // Sets VX to VX OR VY.
     fn op_8xy1(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        let vx_index = (opcode << 4 >> 12) as usize;
+        self.v_regs[vx_index] = self.v_regs[vx_index] |
+                                self.v_regs[(opcode << 8 >> 12) as usize];
     }
 
     // Sets VX to VX AND VY.
     fn op_8xy2(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        let vx_index = (opcode << 4 >> 12) as usize;
+        self.v_regs[vx_index] = self.v_regs[vx_index] &
+                                self.v_regs[(opcode << 8 >> 12) as usize];
     }
 
     // Sets VX to VX XOR VY.
     fn op_8xy3(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        let vx_index = (opcode << 4 >> 12) as usize;
+        self.v_regs[vx_index] = self.v_regs[vx_index] ^
+                                self.v_regs[(opcode << 8 >> 12) as usize];
     }
 
     // Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there
@@ -284,7 +298,7 @@ impl CPU {
 
     // Adds VX to I.
     fn op_fx1e(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        self.i_reg += self.v_regs[(opcode << 4 >> 12) as usize] as u16;
     }
 
     // Sets I to the location of the sprite for the character in VX.
@@ -302,11 +316,15 @@ impl CPU {
 
     // Stores V0 to VX (including VX) in memory starting at address I.
     fn op_fx55(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        for i in 0..0x10 {
+            self.memory[self.i_reg as usize + i] = self.v_regs[i as usize];
+        }
     }
 
     // Fills V0 to VX (including VX) with values from memory starting at address I.
     fn op_fx65(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        for i in 0..0x10 {
+            self.v_regs[i as usize] = self.memory[self.i_reg as usize + i];
+        }
     }
 }
