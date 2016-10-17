@@ -305,7 +305,7 @@ impl CPU {
 
     // Sets VX to the value of the delay timer.
     fn op_fx07(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        self.v_regs[(opcode << 4 >> 12) as usize] = self.delay_timer_reg;
     }
 
     // A key press is awaited, and then stored in VX.
@@ -315,12 +315,12 @@ impl CPU {
 
     // Sets the delay timer to VX.
     fn op_fx15(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        self.delay_timer_reg = self.v_regs[(opcode << 4 >> 12) as usize];
     }
 
     // Sets the sound timer to VX.
     fn op_fx18(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        self.sound_timer_reg = self.v_regs[(opcode << 4 >> 12) as usize];
     }
 
     // Adds VX to I.
@@ -331,14 +331,17 @@ impl CPU {
     // Sets I to the location of the sprite for the character in VX.
     // Characters 0-F (in hexadecimal) are represented by a 4x5 font.
     fn op_fx29(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        self.i_reg = self.v_regs[(opcode << 4 >> 12) as usize] as u16 * 5;
     }
 
     // Stores the binary-coded decimal representation of VX, with the most
     // significant of three digits at the address in I, the middle digit at I
     // plus 1, and the least significant digit at I plus 2.
     fn op_fx33(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        let vx = self.v_regs[(opcode << 4 >> 12) as usize];
+        self.memory[self.i_reg as usize] = vx / 100;
+        self.memory[self.i_reg as usize + 1] = (vx / 10) % 10;
+        self.memory[self.i_reg as usize + 2] = vx % 10;
     }
 
     // Stores V0 to VX (including VX) in memory starting at address I.
