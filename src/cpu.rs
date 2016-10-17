@@ -100,137 +100,185 @@ impl CPU {
         println!("-----------------------\n");
     }
 
+    // Clears the screen.
     fn op_00e0(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Returns from a subroutine.
     fn op_00ee(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Jumps to address NNN.
     fn op_1nnn(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Calls subroutine at NNN.
     fn op_2nnn(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Skips the next instruction if VX equals NN.
     fn op_3xnn(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Skips the next instruction if VX doesn't equal NN.
     fn op_4xnn(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Skips the next instruction if VX equals VY.
     fn op_5xy0(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Sets VX to NN.
     fn op_6xnn(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Adds NN to VX.
     fn op_7xnn(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Sets VX to VX OR VY.
     fn op_8xy0(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Sets VX to VX OR VY.
     fn op_8xy1(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
+
+    // Sets VX to VX AND VY.
     fn op_8xy2(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Sets VX to VX XOR VY.
     fn op_8xy3(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Adds VY to VX. VF is set to 1 when there's a carry, and to 0 when there
+    // isn't.
     fn op_8xy4(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // VY is subtracted from VX. VF is set to 0 when there's a borrow, and 1
+    // when there isn't.
     fn op_8xy5(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Shifts VX right by one. VF is set to the value of the least significant
+    // bit of VX before the shift.
     fn op_8xy6(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Sets VX to VY minus VX. VF is set to 0 when there's a borrow, and 1
+    // when there isn't.
     fn op_8xy7(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Shifts VX left by one. VF is set to the value of the most significant
+    // bit of VX before the shift.
     fn op_8xye(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Skips the next instruction if VX doesn't equal VY.
     fn op_9xy0(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Sets I to the address NNN.
     fn op_annn(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Jumps to the address NNN plus V0.
     fn op_bnnn(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Sets VX to the result of a bitwise AND on a random number and NN.
     fn op_cxnn(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and
+    // a height of N pixels. Each row of 8 pixels is read as bit-coded
+    // starting from memory location I; I value doesn’t change after the
+    // execution of this instruction. VF is set to 1 if any screen pixels are
+    // flipped from set to unset when the sprite is drawn, and to 0 if that
+    // doesn’t happen.
     fn op_dxyn(&mut self, opcode: u16) {
        panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Skips the next instruction if the key stored in VX is pressed.
     fn op_ex9e(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Skips the next instruction if the key stored in VX isn't pressed.
     fn op_exa1(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Sets VX to the value of the delay timer.
     fn op_fx07(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // A key press is awaited, and then stored in VX.
     fn op_fx0a(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Sets the delay timer to VX.
     fn op_fx15(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Sets the sound timer to VX.
     fn op_fx18(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Adds VX to I.
     fn op_fx1e(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Sets I to the location of the sprite for the character in VX.
+    // Characters 0-F (in hexadecimal) are represented by a 4x5 font.
     fn op_fx29(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Stores the binary-coded decimal representation of VX, with the most
+    // significant of three digits at the address in I, the middle digit at I
+    // plus 1, and the least significant digit at I plus 2.
     fn op_fx33(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Stores V0 to VX (including VX) in memory starting at address I.
     fn op_fx55(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
 
+    // Fills V0 to VX (including VX) with values from memory starting at address I.
     fn op_fx65(&mut self, opcode: u16) {
         panic!("Uninplemented opcode: {:x}", opcode);
     }
