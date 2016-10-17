@@ -1,5 +1,5 @@
 use cpu::CPU;
-use gpu::GPU;
+use display::Display;
 use apu::APU;
 use keypad::Keypad;
 
@@ -7,11 +7,11 @@ pub const PROGRAM_OFFSET: usize = 0x200;
 pub const NUM_STACK_FRAMES: usize = 16;
 pub const NUM_REGS: usize = 16;
 
+pub const WIDTH: u32 = 64;
+pub const HEIGHT: u32 = 32;
+
 const CLOCK_RATE: u32 = 600;
 const FPS: u32 = 60;
-
-const WIDTH: u32 = 64;
-const HEIGHT: u32 = 32;
 
 const MEM_SIZE: usize = 4 * 1024;
 
@@ -34,14 +34,12 @@ const FONTSET: [u8; 80] = [0xF0, 0x90, 0x90, 0x90, 0xF0,
 
 pub struct Emulator {
     cpu: CPU,
-    gpu: GPU,
+    display: Display,
     apu: APU,
     keypad: Keypad,
 
     clock_rate: u32,
     fps: u32,
-
-    draw: bool,
 }
 
 impl Emulator {
@@ -58,23 +56,18 @@ impl Emulator {
 
         Emulator {
             cpu: CPU::new(memory),
-            gpu: GPU::new(WIDTH, HEIGHT),
+            display: Display::new(WIDTH, HEIGHT),
             apu: APU::new(),
             keypad: Keypad::new(),
             clock_rate: CLOCK_RATE,
             fps: FPS,
-            draw: false,
         }
     }
 
     pub fn run(&mut self) {
         loop {
             self.cpu.tick();
-
-            if self.draw {
-                self.gpu.draw();
-            }
-
+            self.display.draw();
             self.keypad.set_keys()
         }
     }

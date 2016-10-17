@@ -11,6 +11,8 @@ pub struct CPU {
 
     memory: Vec<u8>,
     stack: [u16; emulator::NUM_STACK_FRAMES],
+
+    pub g_mem: [[bool; emulator::WIDTH as usize]; emulator::HEIGHT as usize],
 }
 
 impl CPU {
@@ -23,6 +25,7 @@ impl CPU {
             delay_timer_reg: 0,
             sound_timer_reg: 0,
             memory: memory,
+            g_mem: [[false; emulator::WIDTH as usize]; emulator::HEIGHT as usize],
             stack: [0; emulator::NUM_STACK_FRAMES]
         }
     }
@@ -104,17 +107,17 @@ impl CPU {
 
     // Clears the screen.
     fn op_00e0(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        for y in 0..emulator::WIDTH {
+            for x in 0..emulator::HEIGHT {
+                self.g_mem[x as usize][y as usize] = false;
+            }
+        }
     }
 
     // Returns from a subroutine.
     fn op_00ee(&mut self, opcode: u16) {
-        self.pc_reg = self.stack[self.sp_reg as usize] as u16;
-        self.stack[self.sp_reg as usize] = 0;
-
-        if self.stack[0] != 0 {
-            self.sp_reg -= 1;
-        }
+        self.pc_reg = self.stack[(self.sp_reg - 1) as usize] as u16;
+        self.sp_reg -= 1;
     }
 
     // Jumps to address NNN.
@@ -124,12 +127,9 @@ impl CPU {
 
     // Calls subroutine at NNN.
     fn op_2nnn(&mut self, opcode: u16) {
-        if self.stack[0] != 0 {
-            self.sp_reg += 1;
-        }
-
         self.stack[self.sp_reg as usize] = self.pc_reg + 2;
-        self.pc_reg = (opcode << 4 >> 4);
+        self.sp_reg += 1;
+        self.pc_reg = (opcode << 4 >> 4) as u16;
     }
 
     // Skips the next instruction if VX equals NN.
@@ -154,7 +154,7 @@ impl CPU {
 
     // Adds NN to VX.
     fn op_7xnn(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        self.v_regs[(opcode << 4 >> 12) as usize] += (opcode << 8 >> 8) as u8;
     }
 
     // Sets VX to VX OR VY.
@@ -229,12 +229,27 @@ impl CPU {
 
     // Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and
     // a height of N pixels. Each row of 8 pixels is read as bit-coded
-    // starting from memory location I; I value doesn’t change after the
-    // execution of this instruction. VF is set to 1 if any screen pixels are
-    // flipped from set to unset when the sprite is drawn, and to 0 if that
-    // doesn’t happen.
+    // starting from memory location I. VF is set to 1 if any screen pixels
+    // are flipped from set to unset when the sprite is drawn, and to 0 if
+    // that doesn’t happen.
     fn op_dxyn(&mut self, opcode: u16) {
-       panic!("Uninplemented opcode: {:x}", opcode);
+        let x_index = self.v_regs[(opcode << 4 >> 12) as usize] as usize;
+        let y_index = self.v_regs[(opcode << 8 >> 12) as usize] as usize;
+        let height = (opcode << 12 >> 12) as usize;
+
+        let mut flipped = false;
+
+        for y in 0..height {
+            let row = self.memory[self.i_reg as usize + y];
+            for x in 0..8 {
+                if row & ((0x80 >> x as u8)) != 0 {
+                    flipped |= self.g_mem[y_index][x_index] as bool;
+                    self.g_mem[y_index][x_index] ^= true;
+                }
+            }
+        }
+
+        self.v_regs[0xF] = flipped as u8;
     }
 
     // Skips the next instruction if the key stored in VX is pressed.

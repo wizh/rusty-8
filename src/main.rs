@@ -3,9 +3,9 @@ use std::env;
 use std::io::prelude::*;
 
 mod cpu;
-mod gpu;
 mod apu;
 mod keypad;
+mod display;
 mod emulator;
 
 use emulator::Emulator;
