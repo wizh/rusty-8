@@ -15,7 +15,7 @@ pub struct CPU {
     memory: Vec<u8>,
     stack: [u16; emulator::NUM_STACK_FRAMES],
 
-    pub g_mem: [[bool; emulator::WIDTH as usize]; emulator::HEIGHT as usize],
+    pub g_mem: [[bool; 64 as usize]; 32 as usize],
 }
 
 impl CPU {
@@ -28,7 +28,7 @@ impl CPU {
             delay_timer_reg: 0,
             sound_timer_reg: 0,
             memory: memory,
-            g_mem: [[false; emulator::WIDTH as usize]; emulator::HEIGHT as usize],
+            g_mem: [[false; 64 as usize]; 32 as usize],
             stack: [0; emulator::NUM_STACK_FRAMES]
         }
     }
@@ -102,9 +102,9 @@ impl CPU {
         }
 
         println!("PC: {:x}", self.pc_reg);
+        println!("I: {:x}", self.i_reg);
         println!("SP: {:x}", self.sp_reg);
         println!("Stack: {:?}", self.stack);
-        println!("I: {:x}", self.i_reg);
         println!("Next opcode: {:#X}", self.fetch_opcode());
     }
 
@@ -164,7 +164,9 @@ impl CPU {
 
     // Adds NN to VX.
     fn op_7xnn(&mut self, opcode: u16) {
-        self.v_regs[(opcode << 4 >> 12) as usize] += (opcode << 8 >> 8) as u8;
+        let vx_index = (opcode << 4 >> 12) as usize;
+        self.v_regs[vx_index] = self.v_regs[vx_index].
+                                    wrapping_add((opcode << 8 >> 8) as u8);
     }
 
     // Sets VX to VY.
@@ -325,7 +327,8 @@ impl CPU {
 
     // Adds VX to I.
     fn op_fx1e(&mut self, opcode: u16) {
-        self.i_reg += self.v_regs[(opcode << 4 >> 12) as usize] as u16;
+        self.i_reg = self.i_reg.
+            wrapping_add(self.v_regs[(opcode << 4 >> 12) as usize] as u16);
     }
 
     // Sets I to the location of the sprite for the character in VX.

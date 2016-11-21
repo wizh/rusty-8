@@ -1,3 +1,5 @@
+extern crate sdl2;
+
 use cpu::CPU;
 use apu::APU;
 use keypad::Keypad;
@@ -9,6 +11,7 @@ pub const NUM_REGS: usize = 16;
 
 pub const WIDTH: u32 = 64;
 pub const HEIGHT: u32 = 32;
+pub const SCALE: u32 = 20;
 
 const CLOCK_RATE: u32 = 600;
 const FPS: u32 = 60;
@@ -32,9 +35,9 @@ const FONTSET: [u8; 80] = [0xF0, 0x90, 0x90, 0x90, 0xF0,
                            0xF0, 0x80, 0xF0, 0x80, 0xF0,
                            0xF0, 0x80, 0xF0, 0x80, 0x80];
 
-pub struct Emulator {
+pub struct Emulator<'a> {
     cpu: CPU,
-    display: Display,
+    display: Display<'a>,
     apu: APU,
     keypad: Keypad,
 
@@ -42,8 +45,8 @@ pub struct Emulator {
     fps: u32,
 }
 
-impl Emulator {
-    pub fn new(rom: Vec<u8>) -> Emulator {
+impl<'a> Emulator<'a> {
+    pub fn new(rom: Vec<u8>) -> Emulator<'a> {
         let mut memory = vec![0; MEM_SIZE];
 
         for i in 0..FONTSET.len() {
@@ -54,9 +57,12 @@ impl Emulator {
             memory[i + PROGRAM_OFFSET] = rom[i];
         }
 
+        let sdl_context = sdl2::init().unwrap();
+        let video_subsystem = sdl_context.video().unwrap();
+
         Emulator {
             cpu: CPU::new(memory),
-            display: Display::new(WIDTH, HEIGHT),
+            display: Display::new(video_subsystem, WIDTH, HEIGHT),
             apu: APU::new(),
             keypad: Keypad::new(),
             clock_rate: CLOCK_RATE,
@@ -67,7 +73,7 @@ impl Emulator {
     pub fn run(&mut self) {
         loop {
             self.cpu.tick();
-            self.display.draw();
+            self.display.draw(&self.cpu.g_mem);
             self.keypad.set_keys()
         }
     }

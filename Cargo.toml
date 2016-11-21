@@ -5,3 +5,4 @@ authors = ["Mathias Fleig Mortensen <humanmatti@gmail.com>"]
 
 [dependencies]
 rand = "*"
+sdl2 = "*"

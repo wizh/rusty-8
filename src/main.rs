@@ -1,4 +1,5 @@
 extern crate rand;
+extern crate sdl2;
 
 use std::fs::File;
 use std::env;
