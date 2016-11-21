@@ -1,13 +1,13 @@
-const NUM_KEYS: usize = 0xf;
+use emulator;
 
 pub struct Keypad {
-    key: [u8; NUM_KEYS]
+    key: [u8; emulator::NUM_KEYS]
 }
 
 impl Keypad {
     pub fn new() -> Keypad {
         Keypad {
-            key: [0; NUM_KEYS]
+            key: [0; emulator::NUM_KEYS]
         }
     }
 

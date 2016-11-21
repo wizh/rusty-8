@@ -9,9 +9,11 @@ pub const PROGRAM_OFFSET: usize = 0x200;
 pub const NUM_STACK_FRAMES: usize = 16;
 pub const NUM_REGS: usize = 16;
 
-pub const WIDTH: u32 = 64;
-pub const HEIGHT: u32 = 32;
+pub const WIDTH: u32 = 1280;
+pub const HEIGHT: u32 = 640;
 pub const SCALE: u32 = 20;
+
+pub const NUM_KEYS: usize = 0xf;
 
 const CLOCK_RATE: u32 = 600;
 const FPS: u32 = 60;

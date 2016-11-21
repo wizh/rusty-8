@@ -12,7 +12,7 @@ pub struct Display<'a> {
 }
 
 impl<'a> Display<'a> {
-    pub fn new(video: sdl2::VideoSubsystem, height: u32, width: u32) -> Display<'a> {
+    pub fn new(video: sdl2::VideoSubsystem, width: u32, height: u32) -> Display<'a> {
         let window = video.window("Chip8", width, height)
             .position_centered()
             .opengl()
