@@ -14,6 +14,8 @@ pub struct CPU {
     memory: Vec<u8>,
     stack: [u16; emulator::NUM_STACK_FRAMES],
 
+    key_state: Keypad,
+
     pub g_mem: [[bool; 64 as usize]; 32 as usize],
 }
 
@@ -34,6 +36,7 @@ impl CPU {
 
     pub fn tick(&mut self) {
         self.print_state();
+
         let opcode = self.fetch_opcode();
         self.pc_reg += 2;
 
@@ -286,44 +289,16 @@ impl CPU {
             let row = self.memory[self.i_reg as usize + y];
             for x in 0..8 {
                 if row & ((0x80 >> x as u8)) != 0 {
-                    flipped |= self.g_mem[(y_index + y) % 32][(x_index + x) % 64] as bool;
-                    self.g_mem[(y_index + y) % 32][(x_index + x) % 64] ^= true;
+                    flipped |= self.g_mem[(y_index + y) % 32]
+                                         [(x_index + x) % 64] as bool;
+                    self.g_mem[(y_index + y) % 32]
+                              [(x_index + x) % 64] ^= true;
                 }
             }
         }
 
         self.v_regs[0xF] = flipped as u8;
     }
-
-    /*fn op_dxyn(&mut self, opcode: u16) {
-    let reg_x = ((opcode & 0x0F00) >> 8) as usize;
-    let reg_y = ((opcode & 0x00F0) >> 4) as usize;
-
-    let height = (opcode & 0x000F) as usize;
-    let coordx = self.v_regs[reg_x] as usize;
-    let coordy = self.v_regs[reg_y] as usize;
-
-
-    let mut flipped = false;
-
-
-    for y in 0..height {
-        let byte = self.memory[self.i_reg as usize + y];
-        for x in 0..8 {
-            let mask = 0b_1000_0000_u8 >> x;
-            let curr_bit = byte & mask != 0;
-
-            let x_index = (x + coordx) % 64;
-            let y_index = (y + coordy) % 32;
-
-
-            flipped |= curr_bit & self.g_mem[y_index][x_index];
-            self.g_mem[y_index][x_index] ^= curr_bit;
-        }
-    }
-
-        self.v_regs[0xF] = flipped as u8;
-    }*/
 
     // Skips the next instruction if the key stored in VX is pressed.
     fn op_ex9e(&mut self, opcode: u16) {
