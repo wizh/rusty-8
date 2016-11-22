@@ -128,6 +128,7 @@ impl CPU {
     // Returns from a subroutine.
     fn op_00ee(&mut self, opcode: u16) {
         self.pc_reg = self.stack[(self.sp_reg - 1) as usize] as u16;
+        self.stack[(self.sp_reg - 1) as usize] = 0;
         self.sp_reg -= 1;
     }
 
@@ -272,13 +273,12 @@ impl CPU {
 
     // Jumps to the address NNN plus V0.
     fn op_bnnn(&mut self, opcode: u16) {
-        self.pc_reg = opcode << 4 >> 4 as u16 + self.v_regs[0] as u16;
+        self.pc_reg = (opcode << 4 >> 4) + self.v_regs[0] as u16;
     }
 
     // Sets VX to the result of a bitwise AND on a random number and NN.
     fn op_cxnn(&mut self, opcode: u16) {
         let random_number = random::<u8>();
-
         self.v_regs[(opcode << 4 >> 12) as usize] =
             random_number & (opcode << 8 >> 8) as u8;
     }
@@ -366,21 +366,31 @@ impl CPU {
     fn op_fx33(&mut self, opcode: u16) {
         let vx = self.v_regs[(opcode << 4 >> 12) as usize];
         self.memory[self.i_reg as usize] = vx / 100;
-        self.memory[self.i_reg as usize + 1] = (vx / 10) % 10;
-        self.memory[self.i_reg as usize + 2] = vx % 10;
+        self.memory[(self.i_reg as usize) + 1] = (vx / 10) % 10;
+        self.memory[(self.i_reg as usize) + 2] = vx % 10;
     }
 
     // Stores V0 to VX (including VX) in memory starting at address I.
+    // I is set to I + X + 1 after operation.
     fn op_fx55(&mut self, opcode: u16) {
-        for i in 0..0x10 {
-            self.memory[self.i_reg as usize + i] = self.v_regs[i as usize];
+        let x = self.v_regs[(opcode << 4 >> 12) as usize];
+        for i in 0..(x + 1) {
+            self.memory[(self.i_reg + 1 as u16) as usize] =
+                self.v_regs[i as usize];
         }
+
+        self.i_reg = self.i_reg.wrapping_add((x + 1) as u16);
     }
 
-    // Fills V0 to VX (including VX) with values from memory starting at address I.
+    // Fills V0 to VX (including VX) with values from memory starting at
+    // address I. I is set to I + X + 1 after operation.
     fn op_fx65(&mut self, opcode: u16) {
-        for i in 0..0x10 {
-            self.v_regs[i as usize] = self.memory[self.i_reg as usize + i];
+        let x = self.v_regs[(opcode << 4 >> 12) as usize];
+        for i in 0..(x + 1) {
+            self.v_regs[i as usize] = self.memory[(self.i_reg + i as u16)
+                                                                  as usize];
         }
+
+        self.i_reg = self.i_reg.wrapping_add((x + 1) as u16);
     }
 }
