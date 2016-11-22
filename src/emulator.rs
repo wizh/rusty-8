@@ -79,9 +79,9 @@ impl<'a> Emulator<'a> {
     pub fn run(&mut self) {
         let mut event_pump = self.sdl_context.event_pump().unwrap();
 
-        let timer_delay = Duration::new(0, 1);
-        let frame_delay = Duration::new(0, 1);
-        let cycle_delay = Duration::new(0, 1);
+        let timer_delay = Duration::new(0, ((1_f64 / DELAYTIMER as f64) * 1_000_000_000_f64) as u32);
+        let frame_delay = Duration::new(0, ((1_f64 / FPS as f64) * 1_000_000_000_f64) as u32);
+        let cycle_delay = Duration::new(0, ((1_f64 / CLOCK_RATE as f64) * 1_000_000_000_f64) as u32);
 
         let mut last_timer = Instant::now();
         let mut last_frame = Instant::now();

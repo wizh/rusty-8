@@ -111,6 +111,8 @@ impl CPU {
         println!("I: {:x}", self.i_reg);
         println!("SP: {:x}", self.sp_reg);
         println!("Stack: {:?}", self.stack);
+        println!("Keys: {:?}", self.keypad.key_state);
+        println!("Last pressed: {:?}", self.keypad.last_pressed);
         println!("Next opcode: {:#X}", self.fetch_opcode());
     }
 
@@ -118,7 +120,7 @@ impl CPU {
     fn op_00e0(&mut self, opcode: u16) {
         for y in 0..64 {
             for x in 0..32 {
-                self.g_mem[x as usize][y as usize] = false;
+                self.g_mem[x][y] = false;
             }
         }
     }
@@ -143,14 +145,16 @@ impl CPU {
 
     // Skips the next instruction if VX equals NN.
     fn op_3xnn(&mut self, opcode: u16) {
-        if self.v_regs[(opcode << 4 >> 12) as usize] == (opcode << 8 >> 8) as u8 {
+        if self.v_regs[(opcode << 4 >> 12) as usize] ==
+           (opcode << 8 >> 8) as u8 {
             self.pc_reg += 2;
         }
     }
 
     // Skips the next instruction if VX doesn't equal NN.
     fn op_4xnn(&mut self, opcode: u16) {
-        if self.v_regs[(opcode << 4 >> 12) as usize] != (opcode << 8 >> 8) as u8 {
+        if self.v_regs[(opcode << 4 >> 12) as usize] !=
+           (opcode << 8 >> 8) as u8 {
             self.pc_reg += 2;
         }
     }
@@ -228,7 +232,8 @@ impl CPU {
     // bit of VX before the shift.
     fn op_8xy6(&mut self, opcode: u16) {
         let vx_index = (opcode << 4 >> 12) as usize;
-        self.v_regs[0xF] = (opcode << 7 >> 15) as u8;
+        self.v_regs[0xF] =
+            self.v_regs[(opcode << 4 >> 12) as usize] & 0b_0000_0001_u8;
         self.v_regs[vx_index] = self.v_regs[vx_index] >> 1;
     }
 
@@ -237,7 +242,7 @@ impl CPU {
     fn op_8xy7(&mut self, opcode: u16) {
         let vx_index = (opcode << 4 >> 12) as usize;
         let (res, overflow) = self.v_regs[(opcode << 8 >> 12) as usize].
-            overflowing_sub(self.v_regs[vx_index as usize]);
+            overflowing_sub(self.v_regs[vx_index]);
 
         self.v_regs[vx_index] = res;
         self.v_regs[0xF] = !overflow as u8;
@@ -247,7 +252,8 @@ impl CPU {
     // bit of VX before the shift.
     fn op_8xye(&mut self, opcode: u16) {
         let vx_index = (opcode << 4 >> 12) as usize;
-        self.v_regs[0xF] = (opcode << 4 >> 15) as u8;
+        self.v_regs[0xF] =
+            self.v_regs[(opcode << 4 >> 12) as usize] & 0b_1000_0000_u8;
         self.v_regs[vx_index] = self.v_regs[vx_index] << 1;
     }
 
@@ -256,7 +262,8 @@ impl CPU {
         if self.v_regs[(opcode << 4 >> 12) as usize] !=
            self.v_regs[(opcode << 8 >> 12) as usize] {
             self.pc_reg += 2;
-        }    }
+        }
+    }
 
     // Sets I to the address NNN.
     fn op_annn(&mut self, opcode: u16) {

@@ -31,7 +31,7 @@ pub struct Keypad {
 }
 
 impl Keypad {
-    pub fn new() -> Keypad{
+    pub fn new() -> Keypad {
         Keypad {
             last_pressed: None,
             key_state: [false; 16]
