@@ -76,7 +76,6 @@ impl<'a> Emulator<'a> {
         loop {
             self.cpu.tick();
             self.display.draw(&self.cpu.g_mem);
-            self.keypad.set_keys()
         }
     }
 }

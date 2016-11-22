@@ -1,22 +1,25 @@
 extern crate rand;
 
 use rand::random;
+
 use emulator;
+use keypad::Keypad;
 
 pub struct CPU {
     v_regs: [u8; emulator::NUM_REGS],
     i_reg: u16,
     pc_reg: u16,
     sp_reg: u8,
-    delay_timer_reg: u8,
-    sound_timer_reg: u8,
 
     memory: Vec<u8>,
     stack: [u16; emulator::NUM_STACK_FRAMES],
 
-    key_state: Keypad,
-
     pub g_mem: [[bool; 64 as usize]; 32 as usize],
+
+    pub delay_timer_reg: u8,
+    pub sound_timer_reg: u8,
+
+    pub keypad: Keypad,
 }
 
 impl CPU {
@@ -26,11 +29,12 @@ impl CPU {
             i_reg: 0,
             pc_reg: emulator::PROGRAM_OFFSET as u16,
             sp_reg: 0,
+            memory: memory,
+            stack: [0; emulator::NUM_STACK_FRAMES],
+            g_mem: [[false; 64 as usize]; 32 as usize],
             delay_timer_reg: 0,
             sound_timer_reg: 0,
-            memory: memory,
-            g_mem: [[false; 64 as usize]; 32 as usize],
-            stack: [0; emulator::NUM_STACK_FRAMES]
+            keypad: Keypad::new()
         }
     }
 
@@ -302,12 +306,16 @@ impl CPU {
 
     // Skips the next instruction if the key stored in VX is pressed.
     fn op_ex9e(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        if self.keypad.key_state[(opcode << 4 >> 12) as usize] {
+            self.pc_reg += 2;
+        }
     }
 
     // Skips the next instruction if the key stored in VX isn't pressed.
     fn op_exa1(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        if !self.keypad.key_state[(opcode << 4 >> 12) as usize] {
+            self.pc_reg += 2;
+        }
     }
 
     // Sets VX to the value of the delay timer.
@@ -317,7 +325,10 @@ impl CPU {
 
     // A key press is awaited, and then stored in VX.
     fn op_fx0a(&mut self, opcode: u16) {
-        panic!("Uninplemented opcode: {:x}", opcode);
+        match self.keypad.last_pressed {
+            Some(key) => self.v_regs[(opcode << 4 >> 12) as usize] = key,
+            None      => self.pc_reg -= 2,
+        }
     }
 
     // Sets the delay timer to VX.
