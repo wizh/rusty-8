@@ -26,7 +26,7 @@ impl<'a> Display<'a> {
         Display {
             height: height,
             width: width,
-            renderer: renderer,
+            renderer: renderer
         }
     }
 

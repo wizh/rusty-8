@@ -5,6 +5,11 @@ use apu::APU;
 use keypad::Keypad;
 use display::Display;
 
+use std::time::{Duration, Instant};
+
+use sdl2::event::Event;
+use sdl2::keyboard::Keycode;
+
 pub const PROGRAM_OFFSET: usize = 0x200;
 pub const NUM_STACK_FRAMES: usize = 16;
 pub const NUM_REGS: usize = 16;
@@ -17,6 +22,8 @@ pub const NUM_KEYS: usize = 0xf;
 
 const CLOCK_RATE: u32 = 600;
 const FPS: u32 = 60;
+
+const DELAYTIMER: u32 = 60;
 
 const MEM_SIZE: usize = 4 * 1024;
 
@@ -42,9 +49,7 @@ pub struct Emulator<'a> {
     display: Display<'a>,
     apu: APU,
     keypad: Keypad,
-
-    clock_rate: u32,
-    fps: u32,
+    sdl_context: sdl2::Sdl,
 }
 
 impl<'a> Emulator<'a> {
@@ -67,15 +72,54 @@ impl<'a> Emulator<'a> {
             display: Display::new(video_subsystem, WIDTH, HEIGHT),
             apu: APU::new(),
             keypad: Keypad::new(),
-            clock_rate: CLOCK_RATE,
-            fps: FPS,
+            sdl_context: sdl_context
         }
     }
 
     pub fn run(&mut self) {
-        loop {
-            self.cpu.tick();
-            self.display.draw(&self.cpu.g_mem);
+        let mut event_pump = self.sdl_context.event_pump().unwrap();
+
+        let timer_delay = Duration::new(0, 1);
+        let frame_delay = Duration::new(0, 1);
+        let cycle_delay = Duration::new(0, 1);
+
+        let mut last_timer = Instant::now();
+        let mut last_frame = Instant::now();
+        let mut last_cycle = Instant::now();
+
+        'emulation: loop {
+            let current_time = Instant::now();
+            for event in event_pump.poll_iter() {
+                match event {
+                    Event::Quit {..} |
+                    Event::KeyDown { keycode: Some(Keycode::Escape), .. } =>
+                        break 'emulation,
+                    Event::KeyDown { keycode: Some(key), .. } =>
+                        self.cpu.keypad.key_pressed(key),
+                    Event::KeyUp { keycode: Some(key), .. } =>
+                        self.cpu.keypad.key_released(key),
+                    _ => {}
+                }
+            }
+
+            if current_time.duration_since(last_timer) > timer_delay {
+                if self.cpu.delay_timer_reg > 0 {
+                    self.cpu.delay_timer_reg -= 1;
+                }
+
+                last_timer = Instant::now();
+            }
+
+            if current_time.duration_since(last_frame) > frame_delay {
+                self.display.draw(&self.cpu.g_mem);
+                last_frame = Instant::now();
+            }
+
+            if current_time.duration_since(last_cycle) > cycle_delay {
+                self.cpu.tick();
+                last_cycle = Instant::now();
+            }
+
         }
     }
 }

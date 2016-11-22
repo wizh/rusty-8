@@ -34,7 +34,7 @@ impl Keypad {
     pub fn new() -> Keypad{
         Keypad {
             last_pressed: None,
-            key_state: [false; 16],
+            key_state: [false; 16]
         }
     }
 
