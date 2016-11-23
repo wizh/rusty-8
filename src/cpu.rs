@@ -116,7 +116,6 @@ impl CPU {
         println!("Next opcode: {:#X}", self.fetch_opcode());
     }
 
-
     // Clears the screen.
     fn op_00e0(&mut self) {
         for y in 0..64 {
@@ -132,6 +131,7 @@ impl CPU {
         self.stack[(self.sp_reg - 1) as usize] = 0;
         self.sp_reg -= 1;
     }
+
 
     // Jumps to address NNN.
     fn op_1nnn(&mut self, opcode: u16) {
@@ -312,16 +312,19 @@ impl CPU {
         self.v_regs[0xF] = flipped as u8;
     }
 
+
     // Skips the next instruction if the key stored in VX is pressed.
     fn op_ex9e(&mut self, opcode: u16) {
-        if self.keypad.key_state[(opcode << 4 >> 12) as usize] {
+        let x = self.v_regs[(opcode << 4 >> 12) as usize];
+        if self.keypad.key_state[x as usize] {
             self.pc_reg += 2;
         }
     }
 
     // Skips the next instruction if the key stored in VX isn't pressed.
     fn op_exa1(&mut self, opcode: u16) {
-        if !self.keypad.key_state[(opcode << 4 >> 12) as usize] {
+        let x = self.v_regs[(opcode << 4 >> 12) as usize];
+        if !self.keypad.key_state[x as usize] {
             self.pc_reg += 2;
         }
     }
