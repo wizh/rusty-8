@@ -2,7 +2,7 @@
 rusty-8 is a [CHIP-8](https://en.wikipedia.org/wiki/CHIP-8) emulator. It uses [rust-sdl2](https://github.com/AngryLawyer/rust-sdl2) for audio, display and input.
 
 ## Requirements
-rust-sdl2 needs to be installed - see instructions on the github page.
+The SDL2 framework needs to be installed - see instructions [here](https://github.com/AngryLawyer/rust-sdl2#requirements).
 
 ## Building the project
 ```
