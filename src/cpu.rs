@@ -116,11 +116,12 @@ impl CPU {
         println!("Next opcode: {:#X}", self.fetch_opcode());
     }
 
+
     // Clears the screen.
     fn op_00e0(&mut self, opcode: u16) {
         for y in 0..64 {
             for x in 0..32 {
-                self.g_mem[x][y] = false;
+                self.g_mem[y][x] = false;
             }
         }
     }
@@ -139,7 +140,7 @@ impl CPU {
 
     // Calls subroutine at NNN.
     fn op_2nnn(&mut self, opcode: u16) {
-        self.stack[self.sp_reg as usize] = self.pc_reg + 2;
+        self.stack[self.sp_reg as usize] = self.pc_reg;
         self.sp_reg += 1;
         self.pc_reg = (opcode << 4 >> 4) as u16;
     }
