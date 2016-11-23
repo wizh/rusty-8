@@ -46,8 +46,8 @@ impl CPU {
 
         match opcode & 0xF000 {
             0x0000 => match opcode & 0x00FF {
-                        0x00E0 => self.op_00e0(opcode),
-                        0x00EE => self.op_00ee(opcode),
+                        0x00E0 => self.op_00e0(),
+                        0x00EE => self.op_00ee(),
                         _      => println!("Unkown opcode: {:x}", opcode),
                     },
             0x1000 => self.op_1nnn(opcode),
@@ -118,7 +118,7 @@ impl CPU {
 
 
     // Clears the screen.
-    fn op_00e0(&mut self, opcode: u16) {
+    fn op_00e0(&mut self) {
         for y in 0..64 {
             for x in 0..32 {
                 self.g_mem[y][x] = false;
@@ -127,7 +127,7 @@ impl CPU {
     }
 
     // Returns from a subroutine.
-    fn op_00ee(&mut self, opcode: u16) {
+    fn op_00ee(&mut self) {
         self.pc_reg = self.stack[(self.sp_reg - 1) as usize] as u16;
         self.stack[(self.sp_reg - 1) as usize] = 0;
         self.sp_reg -= 1;
