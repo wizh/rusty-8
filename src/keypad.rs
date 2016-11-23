@@ -62,22 +62,22 @@ impl Keypad {
 
     pub fn key_released(&mut self, key: Keycode) {
         match key {
-            Keycode::Num1 => self.unset_key(KEY_1),
-            Keycode::Num2 => self.unset_key(KEY_2),
-            Keycode::Num3 => self.unset_key(KEY_3),
-            Keycode::Num4 => self.unset_key(KEY_4),
-            Keycode::Q => self.unset_key(KEY_Q),
-            Keycode::W => self.unset_key(KEY_W),
-            Keycode::E => self.unset_key(KEY_E),
-            Keycode::R => self.unset_key(KEY_R),
-            Keycode::A => self.unset_key(KEY_A),
-            Keycode::S => self.unset_key(KEY_S),
-            Keycode::D => self.unset_key(KEY_D),
-            Keycode::F => self.unset_key(KEY_F),
-            Keycode::Z => self.unset_key(KEY_Z),
-            Keycode::X => self.unset_key(KEY_X),
-            Keycode::C => self.unset_key(KEY_C),
-            Keycode::V => self.unset_key(KEY_V),
+            Keycode::Num1 => self.release_key(KEY_1),
+            Keycode::Num2 => self.release_key(KEY_2),
+            Keycode::Num3 => self.release_key(KEY_3),
+            Keycode::Num4 => self.release_key(KEY_4),
+            Keycode::Q => self.release_key(KEY_Q),
+            Keycode::W => self.release_key(KEY_W),
+            Keycode::E => self.release_key(KEY_E),
+            Keycode::R => self.release_key(KEY_R),
+            Keycode::A => self.release_key(KEY_A),
+            Keycode::S => self.release_key(KEY_S),
+            Keycode::D => self.release_key(KEY_D),
+            Keycode::F => self.release_key(KEY_F),
+            Keycode::Z => self.release_key(KEY_Z),
+            Keycode::X => self.release_key(KEY_X),
+            Keycode::C => self.release_key(KEY_C),
+            Keycode::V => self.release_key(KEY_V),
             _ => {},
         }
     }
@@ -87,7 +87,7 @@ impl Keypad {
         self.last_pressed = Some(key);
     }
 
-    fn unset_key(&mut self, key: u8) {
+    fn release_key(&mut self, key: u8) {
         self.key_state[key as usize] = false;
 
         if self.last_pressed == Some(key) {
