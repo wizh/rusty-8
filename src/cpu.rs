@@ -39,7 +39,7 @@ impl CPU {
     }
 
     pub fn tick(&mut self) {
-        self.print_state();
+        // self.print_state();
 
         let opcode = self.fetch_opcode();
         self.pc_reg += 2;

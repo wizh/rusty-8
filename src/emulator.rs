@@ -1,7 +1,6 @@
 extern crate sdl2;
 
 use cpu::CPU;
-use apu::APU;
 use keypad::Keypad;
 use display::Display;
 
@@ -47,7 +46,6 @@ const FONTSET: [u8; 80] = [0xF0, 0x90, 0x90, 0x90, 0xF0,
 pub struct Emulator<'a> {
     cpu: CPU,
     display: Display<'a>,
-    apu: APU,
     keypad: Keypad,
     sdl_context: sdl2::Sdl,
 }
@@ -70,7 +68,6 @@ impl<'a> Emulator<'a> {
         Emulator {
             cpu: CPU::new(memory),
             display: Display::new(video_subsystem, WIDTH, HEIGHT),
-            apu: APU::new(),
             keypad: Keypad::new(),
             sdl_context: sdl_context
         }

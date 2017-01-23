@@ -6,7 +6,6 @@ use std::env;
 use std::io::prelude::*;
 
 mod cpu;
-mod apu;
 mod keypad;
 mod display;
 mod emulator;
