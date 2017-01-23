@@ -21,3 +21,4 @@ $ cargo run roms/PONG
 ```
 
 # Images
+![alt tag](docs/brix.png)
